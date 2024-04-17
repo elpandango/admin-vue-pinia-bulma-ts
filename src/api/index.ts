@@ -16,7 +16,8 @@ export const httpRequest: IRequest = async (options: IRequestOptions): Promise<a
   const requestData = data ?? null;
   const defaultHeaders = {
     'Accept': 'application/json',
-    'Content-Type': 'application/json',
+    'Content-Type': 'multipart/form-data',
+    // 'Content-Type': 'application/json',
   };
 
   const token: string | null = getCookie('token') || localStorage.getItem('token');
@@ -28,7 +29,7 @@ export const httpRequest: IRequest = async (options: IRequestOptions): Promise<a
 
   const requestOptions: IRequestOptions = {
     method,
-    url,
+    url: `${import.meta.env.VITE_APP_API_URL}${url}`,
     headers,
     ...outerOpts,
   };

@@ -130,9 +130,9 @@ const onSubmit = async () => {
 
     if (register.value) {
       data.name = credentials.name;
-      await registerUser(`${import.meta.env.VITE_APP_API_URL}/auth/signup`, data);
+      await registerUser('/auth/signup', data);
     } else {
-      await loginUser(`${import.meta.env.VITE_APP_API_URL}/auth/login`, data);
+      await loginUser('/auth/login', data);
     }
   }
 };

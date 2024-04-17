@@ -1,6 +1,6 @@
 import {createRouter, createWebHistory} from 'vue-router';
 import HomeView from '../views/HomeView.vue';
-import {useStoreAuth} from "@/stores/storeAuth";
+import PostsView from "@/views/PostsView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -8,17 +8,17 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: PostsView
     },
     {
       path: '/add-post',
       name: 'add-post',
-      component: () => import('../views/AddEditPostView.vue')
+      component: () => import('../views/AddPostView.vue')
     },
     {
-      path: '/posts',
-      name: 'posts',
-      component: () => import('../views/PostsView.vue')
+      path: '/edit-post/:id',
+      name: 'edit-post',
+      component: () => import('../views/EditPostView.vue')
     },
     {
       path: '/auth',
@@ -29,9 +29,8 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from) => {
-  const storeAuth = useStoreAuth();
-  // console.log('localStorage.getItem(\'token\'): ', localStorage.getItem('token'));
   const token = localStorage.getItem('token');
+
   if (!token && to.name !== 'auth') {
     return {name: 'auth'};
   }

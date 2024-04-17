@@ -1,5 +1,5 @@
 import {defineStore} from 'pinia';
-import {deleteCookie, getCookie, setCookie} from '../utils/helpers';
+import {deleteCookie, getCookie, setCookie} from '@/utils/helpers';
 
 export const useStoreAuth = defineStore('storeAuth', {
   state: () => {

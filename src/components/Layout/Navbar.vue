@@ -49,13 +49,6 @@
               @click="showMobileNav = false"
               class="navbar-item"
               active-class="is-active"
-              to="/posts">
-            All Posts
-          </RouterLink>
-          <RouterLink
-              @click="showMobileNav = false"
-              class="navbar-item"
-              active-class="is-active"
               to="/add-post">
             Add New Post
           </RouterLink>

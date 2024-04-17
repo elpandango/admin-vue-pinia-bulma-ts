@@ -3,25 +3,29 @@
     <div class="card-image">
       <figure class="image is-4by3">
         <img
-            src="https://bulma.io/assets/images/placeholders/1280x960.png"
+            :src="props.imageUrl"
+            class="post-image"
             alt="Placeholder image"
         />
       </figure>
     </div>
 
     <div class="card-content">
-      <div class="media">
-        <div class="media-content">
-<!--          <p class="title is-4">{{props.creator?.name}}</p>-->
-          <time>{{formatedDate}}</time>
+      <div class="media mb-1">
+        <div class="media-content flexbox">
+          <time>{{ formatedDate }}</time>
+          <router-link
+              :to="`edit-post/${props.id}`"
+              class="button is-primary">Edit post
+          </router-link>
         </div>
       </div>
 
-      <h3 class="header-title">{{props.title}}</h3>
+      <h3 class="header-title">{{ props.title }}</h3>
 
-      <div class="content ">
-        {{props.content}}
-        <br />
+      <div
+          class="content"
+          v-html="props.content">
       </div>
     </div>
   </div>
@@ -43,6 +47,9 @@ const props = defineProps({
   imageUrl: {
     type: String
   },
+  id: {
+    type: String
+  },
   creator: {
     type: Object
   },
@@ -51,26 +58,42 @@ const props = defineProps({
   }
 });
 
+const months = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
 const formatedDate = computed(() => {
   const date = new Date(<any>props?.createdAt);
   const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const monthIndex = date.getMonth();
+  const monthName = months[monthIndex];
   const year = date.getFullYear();
   const hours = String(date.getHours()).padStart(2, "0");
   const minutes = String(date.getMinutes()).padStart(2, "0");
-  const formattedDate = `${month}-${day}-${year}`;
+  const formattedDate = `${day} ${monthName} ${year}`;
   const formattedTime = `${hours}:${minutes}`;
 
-  return `${formattedDate} - ${formattedTime}`;
+  return `${formattedDate} / ${formattedTime}`;
 });
 
 </script>
 
 <style scoped>
 .header-title {
-  font-size: 20px;
+  font-size: 28px;
   font-weight: bold;
   margin-bottom: 12px;
+}
+
+.media-content.flexbox {
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
+}
+
+.post-image {
+  object-fit: cover;
 }
 
 .content {
