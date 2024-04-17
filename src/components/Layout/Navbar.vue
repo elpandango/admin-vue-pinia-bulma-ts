@@ -1,6 +1,6 @@
 <template>
   <nav
-      class="navbar is-success"
+      class="navbar has-background-primary-80 has-text-primary-80-invert"
       role="navigation"
       aria-label="main navigation">
     <div class="container is-max-desktop px-2">
@@ -43,14 +43,21 @@
               class="navbar-item"
               active-class="is-active"
               to="/">
-            Notes
+            Home
           </RouterLink>
           <RouterLink
               @click="showMobileNav = false"
               class="navbar-item"
               active-class="is-active"
-              to="/stats">
-            Stats
+              to="/posts">
+            All Posts
+          </RouterLink>
+          <RouterLink
+              @click="showMobileNav = false"
+              class="navbar-item"
+              active-class="is-active"
+              to="/add-post">
+            Add New Post
           </RouterLink>
         </div>
       </div>

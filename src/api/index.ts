@@ -1,57 +1,56 @@
 import axios from "axios";
-import {getCookie} from "@/utils/helpers";
+import {getCookie, deleteCookie} from "@/utils/helpers";
 
-type IRequest = (
-  method: string,
-  url: string,
-  data?: any,
-  outerOpts?: object,
-  headers?: {
-    [key: string]: string;
-  }
-) => Promise<any>;
-
-interface RequestOptions {
+interface IRequestOptions {
   method: string;
   url: string;
   data?: any;
-  // withCredentials?: boolean;
-  headers: {
-    [key: string]: string;
-  };
   outerOpts?: object;
+  headers?: object;
 }
 
-export const httpRequest: IRequest = async (method: string, url: string, data?: any, outerOpts?: object): Promise<any> => {
+type IRequest = (options: IRequestOptions) => Promise<any>;
+
+export const httpRequest: IRequest = async (options: IRequestOptions): Promise<any> => {
+  const { method, url, data, outerOpts } = options;
   const requestData = data ?? null;
-  const options: RequestOptions = {
+  const defaultHeaders = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+  };
+
+  const token: string | null = getCookie('token') || localStorage.getItem('token');
+
+  const headers = {
+    ...defaultHeaders,
+    ...(token && { 'Authorization': 'Bearer ' + token }),
+  };
+
+  const requestOptions: IRequestOptions = {
     method,
     url,
-    // withCredentials: true,
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    },
+    headers,
     ...outerOpts,
   };
 
-  if (getCookie('token')) {
-    options.headers['Authorization'] = 'Bearer ' + getCookie('token');
-  }
-
   if (data) {
-    options.data = requestData;
+    requestOptions.data = requestData;
   }
 
-  return axios({...options})
-    .then(function (response) {
-      return response.data;
-    })
-    .catch(function (error) {
-      return {
-        errors: error?.response?.data?.errors,
-        message: error?.response?.data?.message,
-        status: error?.response?.status,
-      }
-    });
+  try {
+    const response = await axios(requestOptions);
+    return response.data;
+  } catch (error: any) {
+    if (error?.response?.data?.message === 'jwt expired') {
+      deleteCookie('token');
+      localStorage.removeItem('token');
+      window.location.href = '/auth';
+    }
+
+    return {
+      errors: error?.response?.data?.errors,
+      message: error?.response?.data?.message,
+      status: error?.response?.status,
+    };
+  }
 };

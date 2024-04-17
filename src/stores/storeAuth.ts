@@ -10,7 +10,7 @@ export const useStoreAuth = defineStore('storeAuth', {
   actions: {
     saveAuthToken(token: string): void {
       localStorage.setItem('token', token);
-      setCookie('token', token, import.meta.env.VUE_APP_COOKIE_DOMAIN, 7);
+      setCookie('token', token, import.meta.env.VITE_APP_COOKIE_DOMAIN, 7);
       console.log('token in localstore is set');
       this.token = token;
     },

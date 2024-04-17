@@ -14,6 +14,19 @@
     <div class="card auth-form">
       <div class="card-content">
         <div class="title has-text-centered">{{ formTitle }}</div>
+        <div
+            v-if="formTitle === 'Register'"
+            class="field">
+          <label class="label">Name</label>
+          <div class="control">
+            <input
+                v-model="credentials.name"
+                class="input"
+                type="text"
+                placeholder="e.g. alexsmith@gmail.com">
+          </div>
+        </div>
+
         <div class="field">
           <label class="label">Email</label>
           <div class="control">
@@ -54,50 +67,72 @@
     setup
     lang="ts">
 
+/*
+  imports
+*/
 import {useStoreAuth} from "@/stores/storeAuth.js";
 import {computed, reactive, ref} from 'vue';
-import {useRoute, useRouter} from "vue-router";
+import {useRouter} from "vue-router";
 import {httpRequest} from "@/api";
 
 const storeAuth = useStoreAuth();
 const router = useRouter();
-const route = useRoute();
 
+
+/*
+  form data and methods
+ */
 const register = ref(false);
 
 const formTitle = computed(() => {
   return register.value ? 'Register' : 'Login';
 });
 
+type requestData = {
+  email: string,
+  password: string,
+  name?: string,
+};
+
+const loginUser = async (url: string, data: any) => {
+  try {
+    const result = await httpRequest({method: 'POST', url, data});
+    if (result.token) {
+      storeAuth.saveAuthToken(result.token);
+      await router.push('/');
+    } else {
+      storeAuth.removeAuthToken();
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const registerUser = async (url: string, data: any) => {
+  try {
+    await httpRequest({method: 'PUT', url, data});
+    storeAuth.removeAuthToken();
+    await router.push('/auth');
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const onSubmit = async () => {
   if (!credentials.email || !credentials.password) {
     alert('Please enter an email and password!');
   } else {
+
+    const data: requestData = {
+      email: credentials.email,
+      password: credentials.password,
+    };
+
     if (register.value) {
-      console.log('Register user');
-      // storeAuth.registerUser(credentials);
+      data.name = credentials.name;
+      await registerUser(`${import.meta.env.VITE_APP_API_URL}/auth/signup`, data);
     } else {
-      try {
-        const result = await httpRequest('POST', 'http://localhost:8080/auth/login', {
-          email: credentials.email,
-          password: credentials.password,
-        });
-
-        console.log('result: ', result);
-
-        if (result.token) {
-          storeAuth.saveAuthToken(result.token);
-          await router.push('/');
-          console.log('after push')
-        } else {
-          storeAuth.removeAuthToken();
-        }
-
-      } catch (error) {
-        console.log(error);
-      }
-
-
+      await loginUser(`${import.meta.env.VITE_APP_API_URL}/auth/login`, data);
     }
   }
 };
@@ -108,7 +143,8 @@ const onSubmit = async () => {
 
 const credentials = reactive({
   email: '',
-  password: ''
+  name: '',
+  password: '',
 });
 </script>
 

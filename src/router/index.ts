@@ -16,6 +16,11 @@ const router = createRouter({
       component: () => import('../views/AddEditPostView.vue')
     },
     {
+      path: '/posts',
+      name: 'posts',
+      component: () => import('../views/PostsView.vue')
+    },
+    {
       path: '/auth',
       name: 'auth',
       component: () => import('../views/AuthView.vue')
@@ -23,16 +28,17 @@ const router = createRouter({
   ]
 });
 
-router.beforeEach(async (to, from) => {
-  const storeAuth = await useStoreAuth();
-  console.log('storeAuth.token: ', storeAuth.token);
-  if (!storeAuth.token && to.name !== 'auth') {
+router.beforeEach((to, from) => {
+  const storeAuth = useStoreAuth();
+  // console.log('localStorage.getItem(\'token\'): ', localStorage.getItem('token'));
+  const token = localStorage.getItem('token');
+  if (!token && to.name !== 'auth') {
     return {name: 'auth'};
   }
 
-  // if (storeAuth.token && to.name === 'auth') {
-  //   return false;
-  // }
+  if (token && to.name === 'auth') {
+    return {name: 'home'};
+  }
   return;
 });
 

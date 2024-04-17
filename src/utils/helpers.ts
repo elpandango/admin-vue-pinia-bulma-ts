@@ -17,10 +17,10 @@ export const setCookie = (name: string, value: string, cookieDomain: string | nu
   d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
   const expires = "expires=" + d.toUTCString() + ";";
   const path = "path=/;";
-  const domain = "domain=" + import.meta.env.VUE_APP_COOKIE_DOMAIN + ";";
+  const domain = "domain=" + import.meta.env.VITE_APP_COOKIE_DOMAIN + ";";
   document.cookie = assign + expires + path + domain;
 }
 
 export const deleteCookie = (cName: string) => {
-  document.cookie = `${cName}=; Max-Age=0; path=/; domain=${import.meta.env.VUE_APP_COOKIE_DOMAIN}`;
+  document.cookie = `${cName}=; Max-Age=0; path=/; domain=${import.meta.env.VITE_APP_COOKIE_DOMAIN}`;
 }
