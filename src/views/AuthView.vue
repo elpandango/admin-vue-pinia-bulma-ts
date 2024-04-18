@@ -99,9 +99,10 @@ const loginUser = async (url: string, data: any) => {
     const result = await httpRequest({method: 'POST', url, data});
     if (result.token) {
       storeAuth.saveAuthToken(result.token);
+      storeAuth.saveUser(result.user);
       await router.push('/');
     } else {
-      storeAuth.removeAuthToken();
+      storeAuth.logoutUser();
     }
   } catch (error) {
     console.log(error);
@@ -111,7 +112,7 @@ const loginUser = async (url: string, data: any) => {
 const registerUser = async (url: string, data: any) => {
   try {
     await httpRequest({method: 'PUT', url, data});
-    storeAuth.removeAuthToken();
+    storeAuth.logoutUser();
     await router.push('/auth');
   } catch (error) {
     console.log(error);

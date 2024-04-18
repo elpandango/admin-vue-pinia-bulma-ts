@@ -3,7 +3,7 @@
     <div class="card-image">
       <figure class="image is-4by3">
         <img
-            :src="props.imageUrl"
+            :src="`${apiUrl}/${props.imageUrl}`"
             class="post-image"
             alt="Placeholder image"
         />
@@ -14,10 +14,16 @@
       <div class="media mb-1">
         <div class="media-content flexbox">
           <time>{{ formatedDate }}</time>
-          <router-link
-              :to="`edit-post/${props.id}`"
-              class="button is-primary">Edit post
-          </router-link>
+          <div class="btn-container">
+            <router-link
+                :to="`edit-post/${props.id}`"
+                class="button is-primary">Edit post
+            </router-link>
+            <button
+                @click="deletePostHandler"
+                class="button is-danger ml-2">Delete post
+            </button>
+          </div>
         </div>
       </div>
 
@@ -58,6 +64,10 @@ const props = defineProps({
   }
 });
 
+const emits = defineEmits(['deleteClicked']);
+
+const apiUrl = import.meta.env.VITE_APP_API_URL;
+
 const months = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
@@ -76,6 +86,10 @@ const formatedDate = computed(() => {
 
   return `${formattedDate} / ${formattedTime}`;
 });
+
+const deletePostHandler = () => {
+  emits('deleteClicked', props.id);
+};
 
 </script>
 

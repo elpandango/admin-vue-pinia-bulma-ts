@@ -31,7 +31,7 @@
       </div>
       <img
           v-if="thumbnail"
-          :src="thumbnail"
+          :src="computedUrl"
           class="thumbnail"
           alt="Thumbnail">
     </div>
@@ -46,7 +46,7 @@
               content-type="html"
               placeholder="Write content..."
               v-model:content="formInputData.content"
-              @update:content="changeHandler"
+              @update:content="editorChangeHandler"
               @ready="quill = $event"
           />
         </div>
@@ -74,21 +74,22 @@
 /*
   imports
 */
-import {onMounted, reactive, ref} from 'vue';
+import {computed, onMounted, reactive, ref} from 'vue';
 import {QuillEditor} from '@vueup/vue-quill';
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 import {useStorePosts} from "@/stores/storePosts";
 import {useRoute} from "vue-router";
 
+const apiUrl = import.meta.env.VITE_APP_API_URL;
 const route = useRoute();
 const emit = defineEmits(['save-post']);
-const storePosts = useStorePosts();
 const formInputData = reactive({
   title: '',
   content: '',
   image: null
 });
-const thumbnail = ref(null);
+const thumbnail = ref('');
+const imageThumbLoaded = ref(false);
 
 const handleFileChange = (event: Event) => {
   const image = event?.target?.files[0];
@@ -97,7 +98,11 @@ const handleFileChange = (event: Event) => {
   if (image) {
     const reader = new FileReader();
     reader.onload = (e) => {
-      thumbnail.value = e.target.result;
+      const result = e?.target?.result;
+      if (typeof result === 'string') {
+        thumbnail.value = result;
+      }
+      imageThumbLoaded.value = true;
     };
     reader.readAsDataURL(image);
   }
@@ -113,18 +118,27 @@ const handleSaveClicked = () => {
 
 const quill = ref(null);
 
-const changeHandler = (editorContent: any) => {
+const editorChangeHandler = (editorContent: any) => {
   formInputData.content = editorContent;
 };
 
+const storePosts = useStorePosts();
 
 onMounted(() => {
   if (route.name === 'edit-post') {
-    formInputData.title = storePosts.getCurrentPost.title;
-    formInputData.content = storePosts.getCurrentPost.content;
-    formInputData.image = storePosts.getCurrentPost.imageUrl;
-    thumbnail.value = storePosts.getCurrentPost.imageUrl;
+    const currentPost = storePosts.getCurrentPost;
+    const { title, content, imageUrl } = currentPost;
+
+    formInputData.title = title;
+    formInputData.content = content;
+    formInputData.image = imageUrl;
+    thumbnail.value = imageUrl;
+    imageThumbLoaded.value = false;
   }
+});
+
+const computedUrl = computed(() => {
+  return imageThumbLoaded.value ? thumbnail.value : `${apiUrl}/${thumbnail.value}`;
 });
 
 </script>
@@ -137,7 +151,6 @@ onMounted(() => {
   background-color: #fff;
   border-radius: 4px;
   border: none;
-  min-height: 320px;
 }
 
 .editor-wrap .ql-toolbar.ql-snow,

@@ -25,17 +25,17 @@
       </div>
 
       <div
+          v-if="true || storeAuth.token"
           id="navbarBasicExample"
           class="navbar-menu"
           :class="{'is-active': showMobileNav}"
           ref="navbarMenuRef">
         <div class="navbar-start">
-          <!--          <button-->
-          <!--              v-if="storeAuth.user.id"-->
-          <!--              @click="logout"-->
-          <!--              class="button is-small is-info mt-3 ml-3">-->
-          <!--            Log out {{ storeAuth.user.email}}-->
-          <!--          </button>-->
+          <button
+              @click="logout"
+              class="button is-small is-info mt-3 ml-3">
+            Log out {{ storeAuth?.user?.name }}
+          </button>
         </div>
         <div class="navbar-end">
           <RouterLink
@@ -67,7 +67,8 @@
 
 import {ref} from "vue";
 import {onClickOutside} from '@vueuse/core';
-// import {useStoreAuth} from "@/stores/storeAuth.ts";
+import {useStoreAuth} from "@/stores/storeAuth";
+import router from "@/router";
 
 /*
  mobile nav
@@ -84,15 +85,16 @@ onClickOutside(navbarMenuRef, event => {
   ignore: [navbarBurgerRef]
 });
 
-// const storeAuth = useStoreAuth();
+const storeAuth = useStoreAuth();
 
 /*
   logout
 */
 
 const logout = () => {
-  // storeAuth.logoutUser();
+  storeAuth.logoutUser();
   showMobileNav.value = false;
+  location.href = '/auth';
 }
 </script>
 

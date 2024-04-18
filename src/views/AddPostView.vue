@@ -25,7 +25,7 @@ const savePostHandler = async (data: any) => {
   const result = await httpRequest({method: 'POST', url: '/feed/post', data: formData});
 
   if (!result?.status) {
-    router.push({name: 'posts'});
+    router.push('/');
   }
 };
 </script>

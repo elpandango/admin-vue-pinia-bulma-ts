@@ -53,7 +53,7 @@ const savePostHandler = async (data: any) => {
   console.log('savePostHandler result: ', result);
 
   if (!result?.status) {
-    router.push({name: 'posts'});
+    await router.push('/');
   }
 };
 </script>
