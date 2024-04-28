@@ -72,7 +72,7 @@
     setup
     lang="ts">
 /*
-  imports
+Imports
 */
 import {computed, onMounted, reactive, ref} from 'vue';
 import {QuillEditor} from '@vueup/vue-quill';
@@ -113,7 +113,7 @@ const handleSaveClicked = () => {
 };
 
 /*
- Quill
+Quill
 */
 
 const quill = ref(null);
@@ -156,5 +156,11 @@ const computedUrl = computed(() => {
 .editor-wrap .ql-toolbar.ql-snow,
 .editor-wrap .ql-container.ql-snow {
   border: none;
+  flex-wrap: wrap;
+  display: flex;
+}
+
+.ql-editor {
+  width: 100%;
 }
 </style>

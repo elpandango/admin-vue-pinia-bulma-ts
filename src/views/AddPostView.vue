@@ -1,19 +1,36 @@
 <template>
   <div class="add-edit-post">
     <h1 class="is-size-2 mb-2">Add New Post</h1>
-    <AddEditPost
-        @save-post="savePostHandler">
-    </AddEditPost>
+
+    <Tabs
+     :tabs="['Post Details', 'SEO Details']">
+      <template #tabContent="{ tabIndex }">
+        <div v-if="tabIndex === 0">
+          <AddEditPost @save-post="savePostHandler"/>
+        </div>
+        <div v-if="tabIndex === 1">
+          <Metadata/>
+        </div>
+      </template>
+    </Tabs>
   </div>
 </template>
 
 <script
-    setup
-    lang="ts">
+ setup
+ lang="ts">
+/*
+Imports
+*/
 import AddEditPost from "@/components/Posts/AddEditPost.vue";
-import {httpRequest} from "@/api";
+import repositoryFactory from "@/repositories/repositoryFactory";
 import {useRouter} from "vue-router";
+import Tabs from "@/components/Tabs/Tabs.vue";
+import Metadata from "@/components/Metadata/Metadata.vue";
 
+/*
+Router init
+*/
 const router = useRouter();
 
 const savePostHandler = async (data: any) => {
@@ -22,10 +39,14 @@ const savePostHandler = async (data: any) => {
   formData.append('content', data.content);
   formData.append('image', data.image);
 
-  const result = await httpRequest({method: 'POST', url: '/feed/post', data: formData});
+  try {
+    const {data} = await repositoryFactory.get('Posts').addPost(formData);
+    if (!data?.status) {
+      await router.push('/');
+    }
 
-  if (!result?.status) {
-    router.push('/');
+  } catch (err: any) {
+    console.log(err);
   }
 };
 </script>

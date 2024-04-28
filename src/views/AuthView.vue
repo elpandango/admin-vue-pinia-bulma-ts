@@ -73,11 +73,9 @@
 import {useStoreAuth} from "@/stores/storeAuth.js";
 import {computed, reactive, ref} from 'vue';
 import {useRouter} from "vue-router";
-import {httpRequest} from "@/api";
-
+import repositoryFactory from "@/repositories/repositoryFactory";
 const storeAuth = useStoreAuth();
 const router = useRouter();
-
 
 /*
   form data and methods
@@ -94,12 +92,12 @@ type requestData = {
   name?: string,
 };
 
-const loginUser = async (url: string, data: any) => {
+const loginUser = async (url: string, formData: any) => {
   try {
-    const result = await httpRequest({method: 'POST', url, data});
-    if (result.token) {
-      storeAuth.saveAuthToken(result.token);
-      storeAuth.saveUser(result.user);
+    const {data} = await repositoryFactory.get('Auth').login(formData);
+    if (data.token) {
+      storeAuth.saveAuthToken(data.token);
+      storeAuth.saveUser(data.user);
       await router.push('/');
     } else {
       storeAuth.logoutUser();
@@ -109,9 +107,9 @@ const loginUser = async (url: string, data: any) => {
   }
 };
 
-const registerUser = async (url: string, data: any) => {
+const registerUser = async (url: string, formData: any) => {
   try {
-    await httpRequest({method: 'PUT', url, data});
+    await repositoryFactory.get('Auth').signup(formData);
     storeAuth.logoutUser();
     await router.push('/auth');
   } catch (error) {

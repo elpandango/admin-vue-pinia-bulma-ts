@@ -2,9 +2,9 @@
   <div class="all-posts">
 
     <progress
-        v-if="loading"
-        class="mt-6 progress is-large is-success"
-        max="100"/>
+     v-if="loading"
+     class="mt-6 progress is-large is-success"
+     max="100"/>
 
     <template v-if="!loading && blogPostResponse.posts?.length === 0">
       <p class="pt-6 has-text-centered has-text-grey">
@@ -14,46 +14,46 @@
 
     <template v-if="!loading && blogPostResponse.posts?.length > 0">
       <Billet
-          v-for="post in blogPostResponse.posts"
-          :key="post?._id"
-          @delete-clicked="deleteClickHandler"
-          :title="post?.title"
-          :content="post?.content"
-          :id="post?._id"
-          :image-url="post?.imageUrl"
-          :created-at="post?.createdAt"
-          :creator="post?.creator"/>
+       v-for="post in blogPostResponse.posts"
+       :key="post?._id"
+       @delete-clicked="deleteClickHandler"
+       :title="post?.title"
+       :content="post?.content"
+       :id="post?._id"
+       :image-url="post?.imageUrl"
+       :created-at="post?.createdAt"
+       :creator="post?.creator"/>
 
       <Pagination v-if="blogPostResponse.lastPage > 1"
-          @page-changed="pageChangeHandler"
-          :data="blogPostResponse"/>
+                  @page-changed="pageChangeHandler"
+                  :data="blogPostResponse"/>
     </template>
 
   </div>
 
   <div
-      v-if="modalVisible"
-      class="modal is-active">
+   v-if="modalVisible"
+   class="modal is-active">
     <div
-        @click="modalVisible = false"
-        class="modal-background"></div>
+     @click="modalVisible = false"
+     class="modal-background"></div>
     <div class="modal-card">
       <header class="modal-card-head">
         <p class="modal-card-title">Are you sure you want to delete this post?</p>
         <button
-            @click="modalVisible = false"
-            class="delete"
-            aria-label="close"></button>
+         @click="modalVisible = false"
+         class="delete"
+         aria-label="close"></button>
       </header>
       <footer class="modal-card-foot">
         <div class="buttons">
           <button
-              @click="deleteClicked"
-              class="button is-danger">Delete
+           @click="deleteClicked"
+           class="button is-danger">Delete
           </button>
           <button
-              @click="modalVisible = false"
-              class="button">Cancel
+           @click="modalVisible = false"
+           class="button">Cancel
           </button>
         </div>
       </footer>
@@ -64,15 +64,15 @@
 
 
 <script
-    setup
-    lang="ts">
+ setup
+ lang="ts">
 
 /*
   imports
 */
 import {onMounted, reactive, ref} from 'vue';
 import Billet from "@/components/Billets/Billet.vue";
-import {httpRequest} from "@/api";
+import repositoryFactory from "@/repositories/repositoryFactory";
 import Pagination from "@/components/Pagination/Pagination.vue";
 
 /*
@@ -111,10 +111,13 @@ let blogPostResponse: PostResponse = reactive({
 
 const fetchBlogPosts = async (page: number = 1) => {
   loading.value = true;
-  const url = `/feed/posts/?page=${page}`;
-  const result = await httpRequest({method: 'GET', url});
+  try {
+    const {data} = await repositoryFactory.get('Posts').get(page);
+    blogPostResponse = {...data};
+  } catch (err: any) {
+    console.log(err);
+  }
 
-  blogPostResponse = {...result};
   loading.value = false;
 };
 
@@ -136,11 +139,15 @@ const deleteClickHandler = (id: string) => {
 };
 
 const deleteClicked = async () => {
-  const result = await httpRequest({method: 'DELETE', url: '/feed/post/' + idToDelete.value});
-  if (result.status === 200) {
-    modalVisible.value = false;
-    idToDelete.value = '';
-    await fetchBlogPosts();
+  try {
+    const {data} = await repositoryFactory.get('Posts').delete(idToDelete.value);
+    if (data.status === 200) {
+      modalVisible.value = false;
+      idToDelete.value = '';
+      await fetchBlogPosts();
+    }
+  } catch (err: any) {
+    console.log(err);
   }
 };
 
@@ -148,8 +155,7 @@ const deleteClicked = async () => {
   Pagination logic
 */
 
-const pageChangeHandler = async(page: number) => {
-  console.log('page in pageChangeHandler: ', page);
+const pageChangeHandler = async (page: number) => {
   await fetchBlogPosts(page);
 }
 
